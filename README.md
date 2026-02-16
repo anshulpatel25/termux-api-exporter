@@ -48,14 +48,14 @@ The device requires:
 - **Rooted Android device** with Magisk or similar root solution
 - **Termux** app installed from F-Droid (not Play Store)
 - **Termux:API** app installed from F-Droid
-- **Supervisor permissions** granted to Termux and Termux:API via Magisk or similar
+- **Superuser permissions** granted to Termux and Termux:API via Magisk or similar
 - Go 1.21 or higher (for building from source)
 
 ## Installation
 
-### Step 1: Grant Supervisor Permissions
+### Step 1: Grant Superuser Permissions
 
-Before installing the exporter, ensure that both Termux and Termux:API have supervisor permissions:
+Before installing the exporter, ensure that both Termux and Termux:API have superuser permissions:
 
 1. Open **Magisk Manager** (or your root solution)
 2. Navigate to the **Superuser** section
