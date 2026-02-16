@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo """{
+  \"bssid\": \"02:00:00:00:00:00\",
+  \"frequency_mhz\": 2457,
+  \"ip\": \"192.168.68.110\",
+  \"link_speed_mbps\": 173,
+  \"mac_address\": \"02:00:00:00:00:00\",
+  \"network_id\": -1,
+  \"rssi\": -30,
+  \"ssid\": \"<unknown ssid>\",
+  \"ssid_hidden\": false,
+  \"supplicant_state\": \"COMPLETED\"
+}"""

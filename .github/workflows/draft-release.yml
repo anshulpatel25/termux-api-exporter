@@ -1,0 +1,145 @@
+name: Draft Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to create release from'
+        required: false
+        type: string
+        default: 'main'
+
+permissions:
+  contents: write
+
+jobs:
+  create-draft-release:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.branch || 'main' }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.21'
+
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          # Get the latest tag, or use 0.0.0 if no tags exist
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
+          echo "Latest tag: ${LATEST_TAG}"
+
+      - name: Calculate next version
+        id: calculate_version
+        run: |
+          LATEST_TAG="${{ steps.get_latest_tag.outputs.latest_tag }}"
+
+          # Remove 'v' prefix if present
+          VERSION=${LATEST_TAG#v}
+
+          # If this is the first release (0.0.0), set to 0.1.0
+          if [ "$VERSION" = "0.0.0" ]; then
+            NEW_VERSION="0.1.0"
+          else
+            # Parse version components
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+
+            # Get commits since last tag
+            COMMITS=$(git log ${LATEST_TAG}..HEAD --oneline)
+
+            # Simple semantic versioning logic based on commit messages
+            if echo "$COMMITS" | grep -qiE "^[a-f0-9]+ (break|breaking|major):"; then
+              # Breaking change: increment major
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+            elif echo "$COMMITS" | grep -qiE "^[a-f0-9]+ (feat|feature):"; then
+              # New feature: increment minor
+              MINOR=$((MINOR + 1))
+              PATCH=0
+            else
+              # Default: increment patch
+              PATCH=$((PATCH + 1))
+            fi
+
+            NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          fi
+
+          echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+          echo "new_tag=v${NEW_VERSION}" >> $GITHUB_OUTPUT
+          echo "Next version: ${NEW_VERSION}"
+
+      - name: Build ARM64 binary
+        run: |
+          GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o termux-api-exporter
+          chmod +x termux-api-exporter
+          tar -czf termux-api-exporter-arm64-linux.tar.gz termux-api-exporter
+          echo "Binary built and archived successfully"
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          LATEST_TAG="${{ steps.get_latest_tag.outputs.latest_tag }}"
+          NEW_TAG="${{ steps.calculate_version.outputs.new_tag }}"
+
+          # Create release notes
+          {
+            echo "## What's Changed"
+            echo ""
+
+            if [ "$LATEST_TAG" = "v0.0.0" ]; then
+              echo "Initial release of Termux API Exporter"
+              echo ""
+              echo "### Features"
+              git log --pretty=format:"- %s (%h)" --reverse
+            else
+              echo "### Commits since ${LATEST_TAG}"
+              git log ${LATEST_TAG}..HEAD --pretty=format:"- %s (%h)" --reverse
+            fi
+
+            echo ""
+            echo ""
+            echo "## Binary Downloads"
+            echo ""
+            echo "- **termux-api-exporter-arm64-linux.tar.gz**: ARM64 Linux binary"
+            echo ""
+            echo "### Installation"
+            echo ""
+            echo "\`\`\`bash"
+            echo "# Extract the archive"
+            echo "tar -xzf termux-api-exporter-arm64-linux.tar.gz"
+            echo ""
+            echo "# Move to system path (optional)"
+            echo "sudo mv termux-api-exporter /usr/local/bin/termux-api-exporter"
+            echo ""
+            echo "# Run"
+            echo "./termux-api-exporter"
+            echo "\`\`\`"
+            echo ""
+            echo "⚠️ **Note**: This application requires Termux and Termux:API to be installed on Android devices."
+          } > release_notes.md
+
+          echo "Release notes generated"
+          cat release_notes.md
+
+      - name: Create Draft Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.calculate_version.outputs.new_tag }}
+          name: Release ${{ steps.calculate_version.outputs.new_tag }}
+          target_commitish: ${{ github.sha }}
+          body_path: release_notes.md
+          draft: true
+          prerelease: false
+          files: |
+            termux-api-exporter-arm64-linux.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

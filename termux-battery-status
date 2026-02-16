@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo """{
+  \"present\": true,
+  \"technology\": \"Li-ion\",
+  \"health\": \"GOOD\",
+  \"plugged\": \"UNPLUGGED\",
+  \"status\": \"DISCHARGING\",
+  \"temperature\": 28.6,
+  \"voltage\": 3812,
+  \"current\": -139000,
+  \"percentage\": 65,
+  \"level\": 65,
+  \"scale\": 100,
+  \"charge_counter\": 1206481,
+  \"cycle\": 0
+}"""
