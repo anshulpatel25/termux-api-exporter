@@ -69,7 +69,7 @@ Open Termux and install the required packages:
 
 ```bash
 # Update package repositories
-pkg update && pkg upgrade
+pkg update && pkg upgrade -y
 
 # Install sudo package
 pkg install sudo
