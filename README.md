@@ -164,7 +164,7 @@ curl http://localhost:9797/health
 ### Running the Exporter
 
 ```bash
-# Run with default settings (port 9100)
+# Run with default settings (port 9797)
 ./termux-api-exporter
 
 # Run with custom port
@@ -230,7 +230,7 @@ Add the following to your `prometheus.yml`:
 scrape_configs:
   - job_name: 'termux-api'
     static_configs:
-      - targets: ['localhost:9100']
+      - targets: ['localhost:9797']
 ```
 
 ## Extending for More Termux Commands
