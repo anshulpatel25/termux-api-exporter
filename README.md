@@ -40,23 +40,123 @@ The project follows clean architecture principles with clear separation:
 
 ## Prerequisites
 
-- Go 1.21 or higher
-- Termux with `termux-api` package installed
-- `termux-battery-status` command available
-- `termux-wifi-connectioninfo` command available
+### System Requirements
+
+**This project is designed for rooted Android devices.**
+
+The device requires:
+- **Rooted Android device** with Magisk or similar root solution
+- **Termux** app installed from F-Droid (not Play Store)
+- **Termux:API** app installed from F-Droid
+- **Superuser permissions** granted to Termux and Termux:API via Magisk or similar
+- Go 1.25 or higher (for building from source)
 
 ## Installation
 
+### Step 1: Grant Superuser Permissions
+
+Before installing the exporter, ensure that both Termux and Termux:API have superuser permissions:
+
+1. Open **Magisk Manager** (or your root solution)
+2. Navigate to the **Superuser** section
+3. Grant root access to:
+   - **Termux** app
+   - **Termux:API** app
+
+### Step 2: Install Required Termux Packages
+
+Open Termux and install the required packages:
+
 ```bash
+# Update package repositories
+pkg update && pkg upgrade -y
+
+# Install sudo package
+pkg install sudo
+
+# Install termux-api package
+pkg install termux-api
+
+# Install termux-services package
+pkg install termux-services
+
+# Restart Termux after installing termux-services
+exit
+# Then reopen Termux
+```
+
+### Step 3: Install the Exporter
+
+Install the exporter in your home directory:
+
+```bash
+# Navigate to home directory
+cd $HOME
+
 # Clone the repository
 git clone https://github.com/anshulpatel25/termux-api-exporter.git
+
+# Navigate to the project directory
 cd termux-api-exporter
 
 # Download dependencies
 go mod download
 
 # Build the binary
+export GOOS=linux
+export GOARCH=arm64
 go build -o termux-api-exporter
+```
+
+### Step 4: Create Service Configuration
+
+Create a service file to run the exporter as a background service:
+
+```bash
+# Create the service directory
+mkdir -p $PREFIX/var/service/termux-api-exporter
+
+# Create the run script
+cat > $PREFIX/var/service/termux-api-exporter/run << 'EOF'
+#!/data/data/com.termux/files/usr/bin/sh
+exec $HOME/termux-api-exporter/termux-api-exporter 2>&1
+EOF
+
+# Make the run script executable
+chmod +x $PREFIX/var/service/termux-api-exporter/run
+```
+
+### Step 5: Enable and Start the Service
+
+Enable the service to start automatically:
+
+```bash
+# Enable the service
+sv-enable termux-api-exporter
+
+# The service will start automatically
+# Check service status
+sv status termux-api-exporter
+
+# To manually start/stop/restart the service:
+# sv up termux-api-exporter     # Start
+# sv down termux-api-exporter   # Stop
+# sv restart termux-api-exporter # Restart
+```
+
+### Verification
+
+Verify the exporter is running:
+
+```bash
+# Check if the service is running
+sv status termux-api-exporter
+
+# Test the metrics endpoint
+curl http://localhost:9797/metrics
+
+# Test the health endpoint
+curl http://localhost:9797/health
 ```
 
 ## Usage
@@ -64,11 +164,11 @@ go build -o termux-api-exporter
 ### Running the Exporter
 
 ```bash
-# Run with default settings (port 9100)
+# Run with default settings (port 9797)
 ./termux-api-exporter
 
 # Run with custom port
-./termux-api-exporter -listen-address=":8080"
+./termux-api-exporter -listen-address=":9200"
 
 # Run with custom metrics path
 ./termux-api-exporter -metrics-path="/custom-metrics"
@@ -130,7 +230,7 @@ Add the following to your `prometheus.yml`:
 scrape_configs:
   - job_name: 'termux-api'
     static_configs:
-      - targets: ['localhost:9100']
+      - targets: ['localhost:9797']
 ```
 
 ## Extending for More Termux Commands
@@ -160,7 +260,7 @@ import (
     "context"
     "encoding/json"
     "log"
-    
+
     "github.com/anshulpatel25/termux-api-exporter/executor"
     "github.com/anshulpatel25/termux-api-exporter/model"
     "github.com/prometheus/client_golang/prometheus"
@@ -283,7 +383,3 @@ See [LICENSE](LICENSE) file for details.
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Author
-
-Anshul Patel ([@anshulpatel25](https://github.com/anshulpatel25))
