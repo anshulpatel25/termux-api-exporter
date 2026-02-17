@@ -49,7 +49,7 @@ The device requires:
 - **Termux** app installed from F-Droid (not Play Store)
 - **Termux:API** app installed from F-Droid
 - **Superuser permissions** granted to Termux and Termux:API via Magisk or similar
-- Go 1.21 or higher (for building from source)
+- Go 1.26 or higher (for building from source)
 
 ## Installation
 
