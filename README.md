@@ -168,7 +168,7 @@ curl http://localhost:9797/health
 ./termux-api-exporter
 
 # Run with custom port
-./termux-api-exporter -listen-address=":9797"
+./termux-api-exporter -listen-address=":9200"
 
 # Run with custom metrics path
 ./termux-api-exporter -metrics-path="/custom-metrics"
