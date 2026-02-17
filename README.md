@@ -103,6 +103,8 @@ cd termux-api-exporter
 go mod download
 
 # Build the binary
+export GOOS=linux
+export GOARCH=arm64
 go build -o termux-api-exporter
 ```
 
@@ -166,7 +168,7 @@ curl http://localhost:9797/health
 ./termux-api-exporter
 
 # Run with custom port
-./termux-api-exporter -listen-address=":8080"
+./termux-api-exporter -listen-address=":9797"
 
 # Run with custom metrics path
 ./termux-api-exporter -metrics-path="/custom-metrics"
@@ -258,7 +260,7 @@ import (
     "context"
     "encoding/json"
     "log"
-    
+
     "github.com/anshulpatel25/termux-api-exporter/executor"
     "github.com/anshulpatel25/termux-api-exporter/model"
     "github.com/prometheus/client_golang/prometheus"
@@ -381,7 +383,3 @@ See [LICENSE](LICENSE) file for details.
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Author
-
-Anshul Patel ([@anshulpatel25](https://github.com/anshulpatel25))
