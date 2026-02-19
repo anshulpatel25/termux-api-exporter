@@ -353,32 +353,6 @@ The exporter includes comprehensive error handling:
 └── README.md              # This file
 ```
 
-### Testing
-
-You can test the exporter without Termux by creating a mock executor:
-
-```go
-// executor/mock.go
-package executor
-
-import (
-    "context"
-)
-
-type MockExecutor struct {
-    output []byte
-    err    error
-}
-
-func NewMockExecutor(output []byte, err error) *MockExecutor {
-    return &MockExecutor{output: output, err: err}
-}
-
-func (m *MockExecutor) Execute(ctx context.Context, command string, args ...string) ([]byte, error) {
-    return m.output, m.err
-}
-```
-
 ## License
 
 See [LICENSE](LICENSE) file for details.
