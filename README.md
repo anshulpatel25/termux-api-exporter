@@ -115,12 +115,15 @@ Create a service file to run the exporter as a background service:
 ```bash
 # Create the service directory
 mkdir -p $PREFIX/var/service/termux-api-exporter
+mkdir -p /data/data/com.termux/files/usr/var/service/yukti/log
 
 # Create the run script
 cat > $PREFIX/var/service/termux-api-exporter/run << 'EOF'
 #!/data/data/com.termux/files/usr/bin/sh
 exec $HOME/termux-api-exporter/termux-api-exporter 2>&1
 EOF
+
+ln -sf /data/data/com.termux/files/usr/share/termux-services/svlogger run
 
 # Make the run script executable
 chmod +x $PREFIX/var/service/termux-api-exporter/run
