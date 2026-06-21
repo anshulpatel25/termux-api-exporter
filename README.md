@@ -202,6 +202,8 @@ The exporter exposes the following metrics:
 |--------|------|-------------|
 | `termux_battery_temperature_celsius` | Gauge | Battery temperature in Celsius |
 | `termux_battery_percentage` | Gauge | Battery charge percentage (0-100) |
+| `termux_battery_voltage_volts` | Gauge | Battery voltage in Volts |
+| `termux_battery_current_amperes` | Gauge | Battery current in Amperes |
 | `termux_wifi_rssi_dbm` | Gauge | WiFi signal strength in dBm (RSSI) |
 | `termux_wifi_link_speed_mbps` | Gauge | WiFi link speed in Mbps |
 
@@ -215,6 +217,14 @@ termux_battery_percentage 65
 # HELP termux_battery_temperature_celsius Battery temperature in Celsius
 # TYPE termux_battery_temperature_celsius gauge
 termux_battery_temperature_celsius 28.6
+
+# HELP termux_battery_voltage_volts Battery voltage in Volts
+# TYPE termux_battery_voltage_volts gauge
+termux_battery_voltage_volts 3.812
+
+# HELP termux_battery_current_amperes Battery current in Amperes
+# TYPE termux_battery_current_amperes gauge
+termux_battery_current_amperes -0.139
 
 # HELP termux_wifi_link_speed_mbps WiFi link speed in Mbps
 # TYPE termux_wifi_link_speed_mbps gauge

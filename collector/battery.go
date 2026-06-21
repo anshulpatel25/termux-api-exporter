@@ -20,6 +20,8 @@ type BatteryCollector struct {
 	executor    executor.Executor
 	temperature *prometheus.Desc
 	percentage  *prometheus.Desc
+	voltage     *prometheus.Desc
+	current     *prometheus.Desc
 }
 
 // NewBatteryCollector creates a new BatteryCollector
@@ -38,6 +40,18 @@ func NewBatteryCollector(exec executor.Executor) *BatteryCollector {
 			nil,
 			nil,
 		),
+		voltage: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "voltage_volts"),
+			"Battery voltage in Volts",
+			nil,
+			nil,
+		),
+		current: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "current_amperes"),
+			"Battery current in Amperes",
+			nil,
+			nil,
+		),
 	}
 }
 
@@ -45,6 +59,8 @@ func NewBatteryCollector(exec executor.Executor) *BatteryCollector {
 func (c *BatteryCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.temperature
 	ch <- c.percentage
+	ch <- c.voltage
+	ch <- c.current
 }
 
 // Collect implements the prometheus.Collector interface
@@ -76,5 +92,17 @@ func (c *BatteryCollector) Collect(ch chan<- prometheus.Metric) {
 		c.percentage,
 		prometheus.GaugeValue,
 		float64(status.Percentage),
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.voltage,
+		prometheus.GaugeValue,
+		float64(status.Voltage)/1000.0,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.current,
+		prometheus.GaugeValue,
+		float64(status.Current)/1000000.0,
 	)
 }
