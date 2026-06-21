@@ -80,8 +80,19 @@ type <Feature>Info struct {
 **Example**: For `termux-battery-status`:
 ```go
 type BatteryStatus struct {
-    Temperature float64 `json:"temperature"`
-    Percentage  int     `json:"percentage"`
+	Present       bool    `json:"present"`
+	Technology    string  `json:"technology"`
+	Health        string  `json:"health"`
+	Plugged       string  `json:"plugged"`
+	Status        string  `json:"status"`
+	Temperature   float64 `json:"temperature"`
+	Voltage       int     `json:"voltage"`
+	Current       int     `json:"current"`
+	Percentage    int     `json:"percentage"`
+	Level         int     `json:"level"`
+	Scale         int     `json:"scale"`
+	ChargeCounter int     `json:"charge_counter"`
+	Cycle         int     `json:"cycle"`
 }
 ```
 
@@ -384,7 +395,7 @@ GOOS=linux GOARCH=arm64 go build -o termux-api-exporter
 2. Run `go mod tidy` if adding/removing dependencies
 3. Build: `go build -o termux-api-exporter`
 4. Test: `./termux-api-exporter`
-5. Verify metrics: `curl http://localhost:9100/metrics`
+5. Verify metrics: `curl http://localhost:9797/metrics`
 
 ## Prometheus Integration
 
@@ -439,7 +450,7 @@ See "Adding a New Termux Command Collector" section above for complete templates
 const (
     namespace = "termux"           // Prometheus namespace
     defaultTimeout = 5 * time.Second
-    defaultPort = ":9100"
+    defaultPort = ":9797"
     metricsPath = "/metrics"
 )
 ```
